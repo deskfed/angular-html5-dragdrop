@@ -385,7 +385,7 @@
         var coords, cover, dragEl, helperEl;
         dragEl = angular.element(this);
         dragEl.data('ddDragData', dragData);
-        e.dataTransfer.setData("text/plain", scope.$id);
+        e.dataTransfer.setData("text", scope.$id);
         ddHelperService.activateChannel(attrs.ddChannel, this);
         if (!attrs.ddDragging) {
           dragEl.addClass(attrs.ddDragClass);
