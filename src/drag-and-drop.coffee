@@ -339,7 +339,7 @@ mod.directive('ddDraggable', ($parse, $rootScope, $document, $timeout, ddHelperS
       # Attach the drag data and activate the channel
       dragEl.data 'ddDragData', dragData
       # We have to set the drag data for FireFox to honor drag/drop
-      e.dataTransfer.setData("text/plain", scope.$$id)
+      e.dataTransfer.setData("text/plain", scope.$id)
       ddHelperService.activateChannel attrs.ddChannel, @
 
       # Add drag class
