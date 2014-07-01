@@ -124,7 +124,7 @@ mod.provider('ddHelperService', ->
       deactivateChannelListeners[channel].push listener
       return
 
-     ###
+    ###
      * @ngdoc method
      * @name Html5DragDrop.service:ddHelperService#removeOnChannelActivate
      * @methodOf Html5DragDrop.service:ddHelperService
@@ -139,6 +139,7 @@ mod.provider('ddHelperService', ->
     removeOnChannelActivate: (channel) ->
       activateChannelListeners[channel] = null
       delete(activateChannelListeners[channel])
+      return
 
     ###
      * @ngdoc method
@@ -155,6 +156,7 @@ mod.provider('ddHelperService', ->
     removeOnChannelDeactivate: (channel) ->
       deactivateChannelListeners[channel] = null
       delete(deactivateChannelListeners[channel])
+      return
 
     ###
      * @ngdoc method
@@ -173,6 +175,7 @@ mod.provider('ddHelperService', ->
       @setDragElement element
       fn() for fn in activateChannelListeners[channel]
       return
+
     ###
      * @ngdoc method
      * @name Html5DragDrop.service:ddHelperService#deactivateChannel

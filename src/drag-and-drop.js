@@ -140,207 +140,207 @@
               deactivateChannelListeners[channel] = [];
             }
             deactivateChannelListeners[channel].push(listener);
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#removeOnChannelActivate
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Removes any functions set to be run when onChannelActivate fires. Use this function when removing entire channels from the DOM to prevent memory links.
+           *
+           * @param {string} channel Channel name
+           *
+           * @returns {null}
+          */
+
+          removeOnChannelActivate: function(channel) {
+            activateChannelListeners[channel] = null;
+            delete activateChannelListeners[channel];
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#removeOnChannelDeactivate
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Removes any functions set to be run when onChannelDeactivate fires. Use this function when removing entire channels from the DOM to prevent memory links.
+           *
+           * @param {string} channel Channel name
+           *
+           * @returns {null}
+          */
+
+          removeOnChannelDeactivate: function(channel) {
+            deactivateChannelListeners[channel] = null;
+            delete deactivateChannelListeners[channel];
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#activateChannel
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Activate a channel by invoking the activation listeners associated with it. This should only be run internally when dragging starts
+           *
+           * @param {string} channel Channel name
+           * @param {Element} element Element being dragged that activates this channel
+           *
+           * @returns {null}
+          */
+
+          activateChannel: function(channel, element) {
+            var fn, _i, _len, _ref;
+            this.setDragElement(element);
+            _ref = activateChannelListeners[channel];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              fn = _ref[_i];
+              fn();
+            }
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#deactivateChannel
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Deactivate a channel by invoking the deactivation listeners associated with it. This should only run internally when dragging ends.
+           *
+           * @param {string} channel Channel name
+           *
+           * @returns {null}
+          */
+
+          deactivateChannel: function(channel) {
+            var fn, _i, _len, _ref;
+            this.setDragElement();
+            _ref = deactivateChannelListeners[channel];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              fn = _ref[_i];
+              fn();
+            }
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#getCoords
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Get coordinates of event object
+           *
+           * @param {Event} event
+           *
+           * @returns {Object} object x/y coordinates of event
+          */
+
+          getCoords: function(evt) {
+            var _ref, _ref1;
+            return {
+              x: ((_ref = evt.originalEvent) != null ? _ref.pageX : void 0) || evt.pageX,
+              y: ((_ref1 = evt.originalEvent) != null ? _ref1.pageY : void 0) || evt.pageY
+            };
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#getBox
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Get the outter box positions
+           *
+           * @param {element} element
+           *
+           * @returns {Object} object top, left, bottom, right positions in object
+          */
+
+          getBox: function(element) {
+            var offset;
+            if (!(offset = element.offset())) {
+              return;
+            }
+            return {
+              top: offset.top,
+              left: offset.left,
+              bottom: offset.top + element.outerHeight(),
+              right: offset.left + element.outerWidth()
+            };
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#contains
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Determine if a box (getBox(element) contains a coord map (getCoords(event))
+           *
+           * @param {Object} box Box coordinates from getBox(element) method
+           * @param {Object} coords Coordinates from getCoords(event) method
+           *
+           * @returns {boolean} boolean
+          */
+
+          contains: function(box, coords) {
+            return coords.x < box.right && coords.x > box.left && coords.y < box.bottom && coords.y > box.top;
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#isWithin
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Determine if an element is "under" an event
+           *
+           * @param {Element} element Element to determine
+           * @param {event} evt Event with coordinates (such as a mouse event)
+           *
+           * @returns {boolean} boolean
+          */
+
+          isWithin: function(element, evt) {
+            return this.contains(this.getBox(element), this.getCoords(evt));
+          },
+          /*
+           * @ngdoc method
+           * @name Html5DragDrop.service:ddHelperService#isBetween
+           * @methodOf Html5DragDrop.service:ddHelperService
+           * @function
+           *
+           * @description Takes a mouse event and a collection and determines which items in the collection the mouse is "over". "Over" includes the element the mouse is actually over and either the element before or the element after, depending on where the mouse is in relation to the element it is actually over.
+           *
+           * @param {String} direction 'horizontal' or 'vertical'
+           * @param {Array} collection jQuery collection of elements
+           * @param {Element} over jQuery element
+           * @param {Event} evt Event object
+           *
+           * @returns {Object} elements Object with 'first' and 'last' elements that the event is between
+          */
+
+          isBetween: function(direction, collection, over, evt) {
+            var coords, firstElement, lastElement, targetBox;
+            if (!(targetBox = this.getBox(over))) {
+              return;
+            }
+            if (!(coords = this.getCoords(evt))) {
+              return;
+            }
+            targetBox.middleX = (targetBox.right - targetBox.left) / 2 + targetBox.left;
+            targetBox.middleY = (targetBox.bottom - targetBox.top) / 2 + targetBox.top;
+            firstElement = lastElement = null;
+            if (!this.contains(targetBox, coords)) {
+              return;
+            }
+            if (direction === 'horizontal' && coords.x > targetBox.middleX || direction === 'vertical' && coords.y > targetBox.middleY) {
+              lastElement = over;
+              firstElement = over.next().filter(collection);
+            } else {
+              firstElement = over;
+              lastElement = over.prev().filter(collection);
+            }
+            return {
+              first: firstElement,
+              last: lastElement
+            };
           }
-        };
-        /*
-        * @ngdoc method
-        * @name Html5DragDrop.service:ddHelperService#removeOnChannelActivate
-        * @methodOf Html5DragDrop.service:ddHelperService
-        * @function
-        *
-        * @description Removes any functions set to be run when onChannelActivate fires. Use this function when removing entire channels from the DOM to prevent memory links.
-        *
-        * @param {string} channel Channel name
-        *
-        * @returns {null}
-        */
-
-      },
-      removeOnChannelActivate: function(channel) {
-        activateChannelListeners[channel] = null;
-        return delete activateChannelListeners[channel];
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#removeOnChannelDeactivate
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Removes any functions set to be run when onChannelDeactivate fires. Use this function when removing entire channels from the DOM to prevent memory links.
-       *
-       * @param {string} channel Channel name
-       *
-       * @returns {null}
-      */
-
-      removeOnChannelDeactivate: function(channel) {
-        deactivateChannelListeners[channel] = null;
-        return delete deactivateChannelListeners[channel];
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#activateChannel
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Activate a channel by invoking the activation listeners associated with it. This should only be run internally when dragging starts
-       *
-       * @param {string} channel Channel name
-       * @param {Element} element Element being dragged that activates this channel
-       *
-       * @returns {null}
-      */
-
-      activateChannel: function(channel, element) {
-        var fn, _i, _len, _ref;
-        this.setDragElement(element);
-        _ref = activateChannelListeners[channel];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          fn = _ref[_i];
-          fn();
-        }
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#deactivateChannel
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Deactivate a channel by invoking the deactivation listeners associated with it. This should only run internally when dragging ends.
-       *
-       * @param {string} channel Channel name
-       *
-       * @returns {null}
-      */
-
-      deactivateChannel: function(channel) {
-        var fn, _i, _len, _ref;
-        this.setDragElement();
-        _ref = deactivateChannelListeners[channel];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          fn = _ref[_i];
-          fn();
-        }
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#getCoords
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Get coordinates of event object
-       *
-       * @param {Event} event
-       *
-       * @returns {Object} object x/y coordinates of event
-      */
-
-      getCoords: function(evt) {
-        var _ref, _ref1;
-        return {
-          x: ((_ref = evt.originalEvent) != null ? _ref.pageX : void 0) || evt.pageX,
-          y: ((_ref1 = evt.originalEvent) != null ? _ref1.pageY : void 0) || evt.pageY
-        };
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#getBox
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Get the outter box positions
-       *
-       * @param {element} element
-       *
-       * @returns {Object} object top, left, bottom, right positions in object
-      */
-
-      getBox: function(element) {
-        var offset;
-        if (!(offset = element.offset())) {
-          return;
-        }
-        return {
-          top: offset.top,
-          left: offset.left,
-          bottom: offset.top + element.outerHeight(),
-          right: offset.left + element.outerWidth()
-        };
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#contains
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Determine if a box (getBox(element) contains a coord map (getCoords(event))
-       *
-       * @param {Object} box Box coordinates from getBox(element) method
-       * @param {Object} coords Coordinates from getCoords(event) method
-       *
-       * @returns {boolean} boolean
-      */
-
-      contains: function(box, coords) {
-        return coords.x < box.right && coords.x > box.left && coords.y < box.bottom && coords.y > box.top;
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#isWithin
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Determine if an element is "under" an event
-       *
-       * @param {Element} element Element to determine
-       * @param {event} evt Event with coordinates (such as a mouse event)
-       *
-       * @returns {boolean} boolean
-      */
-
-      isWithin: function(element, evt) {
-        return this.contains(this.getBox(element), this.getCoords(evt));
-      },
-      /*
-       * @ngdoc method
-       * @name Html5DragDrop.service:ddHelperService#isBetween
-       * @methodOf Html5DragDrop.service:ddHelperService
-       * @function
-       *
-       * @description Takes a mouse event and a collection and determines which items in the collection the mouse is "over". "Over" includes the element the mouse is actually over and either the element before or the element after, depending on where the mouse is in relation to the element it is actually over.
-       *
-       * @param {String} direction 'horizontal' or 'vertical'
-       * @param {Array} collection jQuery collection of elements
-       * @param {Element} over jQuery element
-       * @param {Event} evt Event object
-       *
-       * @returns {Object} elements Object with 'first' and 'last' elements that the event is between
-      */
-
-      isBetween: function(direction, collection, over, evt) {
-        var coords, firstElement, lastElement, targetBox;
-        if (!(targetBox = this.getBox(over))) {
-          return;
-        }
-        if (!(coords = this.getCoords(evt))) {
-          return;
-        }
-        targetBox.middleX = (targetBox.right - targetBox.left) / 2 + targetBox.left;
-        targetBox.middleY = (targetBox.bottom - targetBox.top) / 2 + targetBox.top;
-        firstElement = lastElement = null;
-        if (!this.contains(targetBox, coords)) {
-          return;
-        }
-        if (direction === 'horizontal' && coords.x > targetBox.middleX || direction === 'vertical' && coords.y > targetBox.middleY) {
-          lastElement = over;
-          firstElement = over.next().filter(collection);
-        } else {
-          firstElement = over;
-          lastElement = over.prev().filter(collection);
-        }
-        return {
-          first: firstElement,
-          last: lastElement
         };
       }
     };
