@@ -372,7 +372,7 @@ mod.directive('ddDraggable', ($parse, $rootScope, $document, $timeout, ddHelperS
 
         body.append cover if cover.length
         body.append helperEl
-        e.dataTransfer.setDragImage helperEl[0], coords.x, coords.y
+        e.dataTransfer.setDragImage? helperEl[0], coords.x, coords.y
         #e.dataTransfer.dropEffect = 'move'
         $timeout (->
           helperEl.remove()

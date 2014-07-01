@@ -382,7 +382,7 @@
         return dragData = newValue;
       });
       element.on('dragstart', function(e) {
-        var coords, cover, dragEl, helperEl;
+        var coords, cover, dragEl, helperEl, _base;
         dragEl = angular.element(this);
         dragEl.data('ddDragData', dragData);
         e.dataTransfer.setData("text", scope.$id);
@@ -409,7 +409,9 @@
             body.append(cover);
           }
           body.append(helperEl);
-          e.dataTransfer.setDragImage(helperEl[0], coords.x, coords.y);
+          if (typeof (_base = e.dataTransfer).setDragImage === "function") {
+            _base.setDragImage(helperEl[0], coords.x, coords.y);
+          }
           $timeout((function() {
             helperEl.remove();
             cover.remove();
