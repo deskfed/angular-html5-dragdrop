@@ -307,10 +307,10 @@ mod.provider('ddHelperService', ->
  *
  * @description Hooks up HTML 5 Drag & Drop capability. Must be used in combination with ddDroppable so you can
  *  drop the dragged item onto a droppable area.
- * 
- * @requires $parse 
+ *
+ * @requires $parse
  * @requires $rootScope
- * @requires $document 
+ * @requires $document
  * @requires $timeout
  * @requires ddHelperService
  *
@@ -407,7 +407,7 @@ mod.directive('ddDraggable', ($parse, $rootScope, $document, $timeout, ddHelperS
       return
 
     element.on '$destroy', ->
-      element.off
+      element.off()
 
     return
 )
@@ -555,7 +555,7 @@ mod.directive('ddDroppable', ($parse, $rootScope, $document, $timeout, $log, ddH
       # Unregister our channel callbacks
       ddHelperService.removeOnChannelDeactivate(attrs.ddChannel)
       ddHelperService.removeOnChannelActivate(attrs.ddChannel)
-      element.off
+      element.off()
 
     return
 )
