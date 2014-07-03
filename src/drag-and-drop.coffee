@@ -126,6 +126,40 @@ mod.provider('ddHelperService', ->
 
     ###
      * @ngdoc method
+     * @name Html5DragDrop.service:ddHelperService#removeOnChannelActivate
+     * @methodOf Html5DragDrop.service:ddHelperService
+     * @function
+     *
+     * @description Removes any functions set to be run when onChannelActivate fires. Use this function when removing entire channels from the DOM to prevent memory links.
+     *
+     * @param {string} channel Channel name
+     *
+     * @returns {null}
+    ###
+    removeOnChannelActivate: (channel) ->
+      activateChannelListeners[channel] = null
+      delete(activateChannelListeners[channel])
+      return
+
+    ###
+     * @ngdoc method
+     * @name Html5DragDrop.service:ddHelperService#removeOnChannelDeactivate
+     * @methodOf Html5DragDrop.service:ddHelperService
+     * @function
+     *
+     * @description Removes any functions set to be run when onChannelDeactivate fires. Use this function when removing entire channels from the DOM to prevent memory links.
+     *
+     * @param {string} channel Channel name
+     *
+     * @returns {null}
+    ###
+    removeOnChannelDeactivate: (channel) ->
+      deactivateChannelListeners[channel] = null
+      delete(deactivateChannelListeners[channel])
+      return
+
+    ###
+     * @ngdoc method
      * @name Html5DragDrop.service:ddHelperService#activateChannel
      * @methodOf Html5DragDrop.service:ddHelperService
      * @function
@@ -141,6 +175,7 @@ mod.provider('ddHelperService', ->
       @setDragElement element
       fn() for fn in activateChannelListeners[channel]
       return
+
     ###
      * @ngdoc method
      * @name Html5DragDrop.service:ddHelperService#deactivateChannel
@@ -272,10 +307,10 @@ mod.provider('ddHelperService', ->
  *
  * @description Hooks up HTML 5 Drag & Drop capability. Must be used in combination with ddDroppable so you can
  *  drop the dragged item onto a droppable area.
- * 
- * @requires $parse 
+ *
+ * @requires $parse
  * @requires $rootScope
- * @requires $document 
+ * @requires $document
  * @requires $timeout
  * @requires ddHelperService
  *
@@ -307,7 +342,7 @@ mod.directive('ddDraggable', ($parse, $rootScope, $document, $timeout, ddHelperS
       # Attach the drag data and activate the channel
       dragEl.data 'ddDragData', dragData
       # We have to set the drag data for FireFox to honor drag/drop
-      e.dataTransfer.setData("text/plain", scope.$$id)
+      e.dataTransfer.setData("text", scope.$id)
       ddHelperService.activateChannel attrs.ddChannel, @
 
       # Add drag class
@@ -337,8 +372,8 @@ mod.directive('ddDraggable', ($parse, $rootScope, $document, $timeout, ddHelperS
 
         body.append cover if cover.length
         body.append helperEl
-        e.dataTransfer.setDragImage helperEl[0], coords.x, coords.y
-#        e.dataTransfer.dropEffect = 'move'
+        e.dataTransfer.setDragImage? helperEl[0], coords.x, coords.y
+        #e.dataTransfer.dropEffect = 'move'
         $timeout (->
           helperEl.remove()
           cover.remove()
@@ -371,6 +406,10 @@ mod.directive('ddDraggable', ($parse, $rootScope, $document, $timeout, ddHelperS
 
       return
 
+    element.on '$destroy', ->
+      element.off()
+
+    return
 )
 
 mod.directive('ddDroppable', ($parse, $rootScope, $document, $timeout, $log, ddHelperService) ->
@@ -459,7 +498,6 @@ mod.directive('ddDroppable', ($parse, $rootScope, $document, $timeout, $log, ddH
         dragModelIndex = dragModel.indexOf(dragData)
         dropModelIndex = -1
         # If we have a "first" item, insert after it, otherwise insert before the "last" item
-        console.log betweenItems
         if betweenItems.first?.length
           dropModelIndex = sortWithin.index(betweenItems.first)
         else if betweenItems.last?.length
@@ -507,8 +545,17 @@ mod.directive('ddDroppable', ($parse, $rootScope, $document, $timeout, $log, ddH
     ddHelperService.onChannelDeactivate attrs.ddChannel, ->
       element.off "dragover", onDragOver
       element.off "dragenter", onDragEnter
+      element.off "dragleave", onDragLeave
       element.off "drop", onDrop
       element.removeClass actionClasses.ddDropTargetClass
       # reset sortWithin
       sortWithin = null
+
+    element.on '$destroy', ->
+      # Unregister our channel callbacks
+      ddHelperService.removeOnChannelDeactivate(attrs.ddChannel)
+      ddHelperService.removeOnChannelActivate(attrs.ddChannel)
+      element.off()
+
+    return
 )
